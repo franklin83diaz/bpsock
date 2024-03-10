@@ -55,3 +55,8 @@ _ _, _ _ _ _ _ _ _ _ _ _ _ _ _ , _ _ _ , AF02E...
 01 00000000000000000000000074616731 000E10 AF02E...
 ```
 
+Request Communication uses tag ephemera that are generated from a TAG8, the tag ephemera begin with a numerical character and serve to identify type, which can be:
+
+ 1 is request<br>
+ 2 is response<br>
+ 3 is cancel
