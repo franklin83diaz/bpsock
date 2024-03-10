@@ -17,10 +17,7 @@ server() async {
 
   serverSocket.listen((Socket socket) {
     final bpsock = BpSock(socket);
-    ReqPoint example1 = ReqPoint(Tag8('example1'), (handler, data, id) {
-      print('hook: $data');
-    });
-    bpsock.addReqPoint(example1);
+    bpsock.addHook(example1);
   });
 }
 
@@ -32,5 +29,6 @@ client() async {
   bpsock.addHook(example1);
 
   bpsock.send(Uint8List.fromList('Hello'.codeUnits), example1.tagRow);
-  bpsock.send(Uint8List.fromList('Hello2'.codeUnits), Tag16("example2"));
+  bpsock.send(Uint8List.fromList('Hello2'.codeUnits), example1.tagRow);
+  bpsock.send(Uint8List.fromList('Hello3'.codeUnits), Tag16("example3"));
 }

@@ -16,6 +16,7 @@ class BpSock {
   final Socket _socket;
   final ListHandlers _handlers = [];
   int _idChannel = 0;
+  bool _lockUpChannel = false;
 
   BpSock(this._socket, {int dmtu = 15000000}) {
     _dmtu = dmtu;
@@ -41,11 +42,36 @@ class BpSock {
   }
 
   //Send data
-  void send(Uint8List data, Tag16 tag) {
+  void send(Uint8List data, Tag16 tag) async {
+    //lock up channel if it is busy
+    while (_lockUpChannel) {
+      await Future.delayed(Duration(milliseconds: 10));
+    }
+    _lockUpChannel = true;
     _idChannel++;
     if (_idChannel > 65535) {
       _idChannel = 1;
     }
+    _lockUpChannel = false;
+
+    sendData(data, tag.name, _idChannel, _socket, _dmtu);
+  }
+
+  //request
+  void req(Uint8List data, Tag8 tag, ActionFunc function) async {
+    //lock up channel if it is busy
+    while (_lockUpChannel) {
+      await Future.delayed(Duration(milliseconds: 10));
+    }
+    _lockUpChannel = true;
+    _idChannel++;
+    if (_idChannel > 65535) {
+      _idChannel = 1;
+    }
+    _lockUpChannel = false;
+    ReqHandler handler = ReqHandler(tag, function);
+    _addReqHandler(handler);
+
     sendData(data, tag.name, _idChannel, _socket, _dmtu);
   }
 
@@ -64,6 +90,42 @@ class BpSock {
 
   ListHandlers getAllHooks() {
     var all = _handlers.whereType<HookHandler>();
+    return all.toList();
+  }
+
+  //ReqPoint
+  void addReqPoint(ReqPoint handler) {
+    //check if the tag already exists
+    if (_handlers.any((e) => e.tag == handler.tag)) {
+      throw ArgumentError('The tag already exists');
+    }
+    _handlers.add(handler);
+  }
+
+  void removeReqPoint(Tag8 tag) {
+    _handlers.removeWhere((e) => e.tag == tag.name);
+  }
+
+  ListHandlers getAllReqPoint() {
+    var all = _handlers.whereType<ReqPoint>();
+    return all.toList();
+  }
+
+  //ReqHandler
+  void _addReqHandler(ReqHandler handler) {
+    //check if the tag already exists
+    if (_handlers.any((e) => e.tag == handler.tag)) {
+      throw ArgumentError('The tag already exists');
+    }
+    _handlers.add(handler);
+  }
+
+  void removeReqHandler(Tag8 tag) {
+    _handlers.removeWhere((e) => e.tag == tag.name);
+  }
+
+  ListHandlers getAllReqHandler() {
+    var all = _handlers.whereType<ReqHandler>();
     return all.toList();
   }
 }

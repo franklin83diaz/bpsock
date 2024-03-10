@@ -61,5 +61,32 @@ void main() {
       bpsock.send(Uint8List.fromList('Hello'.codeUnits), Tag16("example send"));
       await Future.delayed(Duration(seconds: 1));
     });
+
+    test('remove hook', () async {
+      bpsock.removeHook(Tag16('example1'));
+      expect(bpsock.getAllHooks().length, 1);
+    });
+
+    test('ReqPoint', () async {
+      ReqPoint reqPoint1 = ReqPoint(Tag8('ReqP1'), (handler, data, id) {});
+      bpsock.addReqPoint(reqPoint1);
+
+      expect('ReqP1', bpsock.getAllReqPoint()[0].tag);
+    });
+
+    test('ReqHandler', () async {
+      //Color Green
+      print(
+          "\x1B[32m The tag no found 2 time is normal, is the data and the endChannel \x1B[0m");
+      bpsock.req(Uint8List.fromList('Hello'.codeUnits), Tag8('R1'),
+          (handler, data, id) {});
+
+      bpsock.req(Uint8List.fromList('Hello'.codeUnits), Tag8('ReqH0001'),
+          (handler, data, id) {});
+
+      expect('R1', bpsock.getAllReqHandler()[0].tag.substring(8));
+      expect('ReqH0001', bpsock.getAllReqHandler()[1].tag.substring(8));
+      await Future.delayed(Duration(seconds: 1));
+    });
   });
 }

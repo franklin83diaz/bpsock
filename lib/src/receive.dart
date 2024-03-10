@@ -10,7 +10,7 @@ void receiveData(
 
   // header is complete 22 bytes
   while (buffer.length >= 22) {
-    // Convert the buffer to a list of bytes
+    // Convert the buffer to a list of bytes and clear the buffer
     var availableData = buffer.takeBytes();
 
     // extract the header
@@ -32,7 +32,7 @@ void receiveData(
     //Print the header
     // print("id Channel: $idChannel");
     // print("tag: $originalTag");
-    // print("length Data: $lengthData");
+    //print("length Data: $lengthData");
 
     //1 request
     //2 response
@@ -54,6 +54,10 @@ void receiveData(
       connHandler = connsHandler.firstWhere((e) => e.tag == tag);
     } catch (e) {
       print('tag not found: $tag');
+      // add the rest of the buffer to the buffer
+      if (availableData.length > lengthData) {
+        buffer.add(availableData.sublist(22 + lengthData));
+      }
       continue;
     }
 
