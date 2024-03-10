@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:bpsock/bpsock.dart';
 
 void main() async {
-  var server = await ServerSocket.bind(InternetAddress.anyIPv4, 4040);
+  ServerSocket.bind(InternetAddress.anyIPv4, 4040);
   await Future.delayed(Duration(seconds: 1));
 
   Socket socket = await Socket.connect('127.0.0.1', 4040);
