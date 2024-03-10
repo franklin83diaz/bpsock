@@ -1,8 +1,11 @@
 import 'dart:typed_data';
 
+import 'package:bpsock/src/core/handler.dart';
 import 'package:bpsock/src/utils/tag_bytes_to_string.dart';
+import 'package:bpsock/src/utils/type_def.dart';
 
-void receiveData(List<int> data, connsHandler, BytesBuilder buffer) {
+void receiveData(
+    List<int> data, ListHandlers connsHandler, BytesBuilder buffer) {
   buffer.add(data);
 
   // header is complete 22 bytes
@@ -46,17 +49,11 @@ void receiveData(List<int> data, connsHandler, BytesBuilder buffer) {
     } else if (originalTag.startsWith('3')) {
       tag = tag.substring(8);
     }
-
-    final connHandler =
-        connsHandler.firstWhere((e) => e.tag == tag, orElse: () => null);
-
-    if (connHandler == null) {
-      // if the tag is not found,
-      // but has more data than
-      // add the rest of the buffer to the buffer
-      if (availableData.length > lengthData) {
-        buffer.add(availableData.sublist(lengthData));
-      }
+    late final Handler? connHandler;
+    try {
+      connHandler = connsHandler.firstWhere((e) => e.tag == tag);
+    } catch (e) {
+      print('tag not found: $tag');
       continue;
     }
 

@@ -14,11 +14,13 @@ class HookHandler extends Handler {
   @override
   String get tag => _tag.name;
 
+  Tag16 get tagRow => _tag;
+
   @override
   ActionFunc get function => _function;
 
   @override
-  Stream<String> get cancel => _cancel.stream;
+  StreamController<String> get cancel => _cancel;
 
   @override
   void dispose() {
@@ -36,11 +38,13 @@ class ReqHandler extends Handler {
   @override
   String get tag => _tag.name;
 
+  Tag8 get tagRow => _tag;
+
   @override
   ActionFunc get function => _function;
 
   @override
-  Stream<String> get cancel => _cancel.stream;
+  StreamController<String> get cancel => _cancel;
 
   @override
   void dispose() {
