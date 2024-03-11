@@ -35,7 +35,30 @@ we have 2 type de tag.
 
  TAG cannot start with numbers.
 
-In order to transmit several channels simultaneously, small data units are processed, which are identified with a TAG. Each unit has a different id, but several ids can be part of the same TAG.
+ The TAGs are identifiers the Hooks and reqPoints in the destinations, the Hooks and the reqPoints are handlers of received data.
+
+To transmit several channels simultaneously, small chunks of data units are processed that are identified with a channel id. Each unit has a different id but the chunks that belong to a unit have the same id.
+
+Each channel has at least two chunks, one for data and another to mark the end of the channel.
+```
+TAG:  tag1
+ |
+  \____> Channel id 1 (500bit)
+   |      |
+   |       \___> chunk id 1 Data 500bit
+   |       |
+   |       |____> chunk id 1 end 
+   |
+   |
+    \__> Channel id 2 (700bit)
+        |      
+         \___> chunk id 2 Data 500bit
+         |
+         |____> chunk id 2 Data 200bit
+         |
+         |____> chunk id 2 end 
+
+```
 
 Data Maximum Transmission Unit (DMTU) is the maximum size of the data units.can be sent in. Always lee than 16,777,215.
 
