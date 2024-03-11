@@ -63,11 +63,20 @@ void main() {
           bpsock.res(Uint8List.fromList('Hello2'.codeUnits), tagName);
         });
 
-        ReqPoint bigQuery = ReqPoint(Tag8('bigQuery'), (handler, tagName, id) {
+        ReqPoint bigQuery =
+            ReqPoint(Tag8('bigQuery'), (handler, tagName, id) async {
           var data = utf8.decode(handler.data[id]!);
-          //!TODO:
-          //expect(data, 'Hello');
-          bpsock.res(Uint8List.fromList('Hello2'.codeUnits), tagName);
+          expect(data, 'big query');
+
+          IsCanceled isCanceled = cancelHandler(handler, tagName);
+
+          bpsock.res(Uint8List.fromList('data part 1'.codeUnits), tagName);
+
+          await Future.delayed(Duration(seconds: 4));
+
+          if (isCanceled.status) return;
+          bpsock.res(Uint8List.fromList('data part 2'.codeUnits), tagName);
+          await Future.delayed(Duration(seconds: 2));
         });
 
         bpsock.addHook(example1);
@@ -112,6 +121,33 @@ void main() {
       await Future.delayed(Duration(seconds: 2));
 
       expect(bpsock.getAllReqHandler().length, 1);
+    });
+
+    test('bigbigQuery without cancel', () async {
+      int part = 0;
+      await bpsock
+          .req(Uint8List.fromList('big query'.codeUnits), Tag8('bigQuery'),
+              (handler, tag, id) {
+        part++;
+        expect('data part $part', utf8.decode(handler.data[id]!));
+      });
+      await Future.delayed(Duration(seconds: 7));
+      expect(2, part);
+    });
+
+    test('bigbigQuery with Cancel', () async {
+      int part = 0;
+      String tagBigQuery = await bpsock
+          .req(Uint8List.fromList('big query'.codeUnits), Tag8('bigQuery'),
+              (handler, tag, id) {
+        part++;
+        expect('data part $part', utf8.decode(handler.data[id]!));
+      });
+
+      await Future.delayed(Duration(seconds: 1));
+      bpsock.reqCancel(tagBigQuery);
+      await Future.delayed(Duration(seconds: 7));
+      expect(1, part);
     });
   });
 }

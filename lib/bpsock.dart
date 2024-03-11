@@ -6,3 +6,4 @@ library;
 export 'src/bpsock_base.dart';
 export 'src/handlers.dart';
 export 'src/utils/tags.dart';
+export 'src/utils/cancel.dart';

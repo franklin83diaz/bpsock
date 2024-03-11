@@ -58,7 +58,7 @@ class BpSock {
   }
 
   //request
-  void req(Uint8List data, Tag8 tag, ActionFunc function) async {
+  Future<String> req(Uint8List data, Tag8 tag, ActionFunc function) async {
     //lock up channel if it is busy
     while (_lockUpChannel) {
       await Future.delayed(Duration(milliseconds: 10));
@@ -75,8 +75,28 @@ class BpSock {
     _addReqHandler(handler);
 
     sendData(data, '1${handler.tag}', _idChannel, _socket, _dmtu);
+
+    return handler.tag;
   }
 
+  //request cancel
+  void reqCancel(tagName) async {
+    removeReqHandler(tagName);
+    //lock up channel if it is busy
+    while (_lockUpChannel) {
+      await Future.delayed(Duration(milliseconds: 10));
+    }
+    _lockUpChannel = true;
+    _idChannel++;
+    if (_idChannel > 65535) {
+      _idChannel = 1;
+    }
+    _lockUpChannel = false;
+    Uint8List data = Uint8List(0);
+    sendData(data, '3$tagName', _idChannel, _socket, _dmtu);
+  }
+
+  //response
   void res(Uint8List data, String tagName) async {
     //lock up channel if it is busy
     while (_lockUpChannel) {
