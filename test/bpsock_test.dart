@@ -48,16 +48,27 @@ void main() {
       }
     });
 
-    test('send', () async {
+    test('sever', () async {
       serverSocket.listen((Socket socket) {
         final bpsock = BpSock(socket);
         HookHandler example1 =
-            HookHandler(Tag16('example send'), (handler, data, id) {
+            HookHandler(Tag16('example send'), (handler, tagName, id) {
           var data = utf8.decode(handler.data[id]!);
           expect(data, 'Hello');
         });
+
+        ReqPoint reqPoint1 = ReqPoint(Tag8('ReqH0001'), (handler, tagName, id) {
+          var data = utf8.decode(handler.data[id]!);
+          expect(data, 'Hello');
+          bpsock.res(Uint8List.fromList('Hello2'.codeUnits), tagName);
+        });
+
         bpsock.addHook(example1);
+        bpsock.addReqPoint(reqPoint1);
       });
+    });
+
+    test('send', () async {
       bpsock.send(Uint8List.fromList('Hello'.codeUnits), Tag16("example send"));
       await Future.delayed(Duration(seconds: 1));
     });
@@ -82,10 +93,12 @@ void main() {
           (handler, data, id) {});
 
       bpsock.req(Uint8List.fromList('Hello'.codeUnits), Tag8('ReqH0001'),
-          (handler, data, id) {});
+          (handler, tag, id) {
+        expect('Hello2', utf8.decode(handler.data[id]!));
+      });
 
-      expect('R1', bpsock.getAllReqHandler()[0].tag.substring(8));
-      expect('ReqH0001', bpsock.getAllReqHandler()[1].tag.substring(8));
+      expect('R1', bpsock.getAllReqHandler()[0].tag.substring(7));
+      expect('ReqH0001', bpsock.getAllReqHandler()[1].tag.substring(7));
       await Future.delayed(Duration(seconds: 1));
     });
   });

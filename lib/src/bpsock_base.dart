@@ -69,10 +69,31 @@ class BpSock {
       _idChannel = 1;
     }
     _lockUpChannel = false;
+
+    //
     ReqHandler handler = ReqHandler(tag, function);
     _addReqHandler(handler);
 
-    sendData(data, tag.name, _idChannel, _socket, _dmtu);
+    sendData(data, '1${handler.tag}', _idChannel, _socket, _dmtu);
+  }
+
+  void res(Uint8List data, String tagName) async {
+    //lock up channel if it is busy
+    while (_lockUpChannel) {
+      await Future.delayed(Duration(milliseconds: 10));
+    }
+    _lockUpChannel = true;
+    _idChannel++;
+    if (_idChannel > 65535) {
+      _idChannel = 1;
+    }
+    _lockUpChannel = false;
+
+    //check if the tag starts with 2
+    if (!tagName.startsWith('2')) {
+      throw ArgumentError('The tag must start with 2');
+    }
+    sendData(data, tagName, _idChannel, _socket, _dmtu);
   }
 
   //Hook

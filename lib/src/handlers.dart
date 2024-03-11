@@ -38,7 +38,7 @@ class ReqHandler extends Handler {
     final String microsecond = DateTime.now().microsecondsSinceEpoch.toString();
     String subTag = microsecond.substring(2, microsecond.length - 3);
     subTag = int.parse(subTag).toRadixString(32);
-    _tag = Tag16('1$subTag${tag.name}');
+    _tag = Tag16('$subTag${tag.name}');
   }
 
   @override
