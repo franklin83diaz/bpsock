@@ -63,8 +63,16 @@ void main() {
           bpsock.res(Uint8List.fromList('Hello2'.codeUnits), tagName);
         });
 
+        ReqPoint bigQuery = ReqPoint(Tag8('bigQuery'), (handler, tagName, id) {
+          var data = utf8.decode(handler.data[id]!);
+          //!TODO:
+          //expect(data, 'Hello');
+          bpsock.res(Uint8List.fromList('Hello2'.codeUnits), tagName);
+        });
+
         bpsock.addHook(example1);
         bpsock.addReqPoint(reqPoint1);
+        bpsock.addReqPoint(bigQuery);
       });
     });
 
@@ -93,13 +101,17 @@ void main() {
           (handler, data, id) {});
 
       bpsock.req(Uint8List.fromList('Hello'.codeUnits), Tag8('ReqH0001'),
-          (handler, tag, id) {
+          (handler, tag, id) async {
         expect('Hello2', utf8.decode(handler.data[id]!));
+        await Future.delayed(Duration(seconds: 1));
+        bpsock.removeReqHandler(tag);
       });
 
       expect('R1', bpsock.getAllReqHandler()[0].tag.substring(7));
       expect('ReqH0001', bpsock.getAllReqHandler()[1].tag.substring(7));
-      await Future.delayed(Duration(seconds: 1));
+      await Future.delayed(Duration(seconds: 2));
+
+      expect(bpsock.getAllReqHandler().length, 1);
     });
   });
 }

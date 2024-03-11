@@ -141,8 +141,8 @@ class BpSock {
     _handlers.add(handler);
   }
 
-  void removeReqHandler(Tag8 tag) {
-    _handlers.removeWhere((e) => e.tag == tag.name);
+  void removeReqHandler(String tagName) {
+    _handlers.removeWhere((e) => e.tag == tagName);
   }
 
   ListHandlers getAllReqHandler() {
