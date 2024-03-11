@@ -83,3 +83,5 @@ Request Communication uses tag ephemera that are generated from a TAG8, the tag 
  1 is request<br>
  2 is response<br>
  3 is cancel
+
+tag ephemera in the handlers does not include the first bit that sets the type, so it has a length of 15 bits. and to remove the prefix, only 7 bits must be removed.
