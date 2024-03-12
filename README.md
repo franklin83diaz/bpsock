@@ -40,6 +40,8 @@ we have 2 type de tag.
 To transmit several channels simultaneously, small chunks of data units are processed that are identified with a channel id. Each unit has a different id but the chunks that belong to a unit have the same id.
 
 Each channel has at least two chunks, one for data and another to mark the end of the channel.
+The END DATA is a chunk with 0 data.
+
 ```
 TAG:  tag1
  |
